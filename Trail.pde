@@ -3,6 +3,8 @@ public class Trail {
   ArrayList<Tweet> points;
   color trailColor;
   float lifespan;
+  Tweet t = null;
+  PVector loc = null;
   
   Trail(color col) {
     points = new ArrayList<Tweet>();
@@ -14,22 +16,10 @@ public class Trail {
      points.add(t);
      lifespan = 255.0;
   }
-    
-  void draw() {
-    
-//    if (points.size()<3)
-//      return;
-
-    Tweet t = null;
-    PVector loc = null;
+  
+  void drawPoints() {
 
     noStroke();
-        
-    // put a circle for the first point on the trail
-//    t = points.get(0);
-//    loc = t.screenLocation();
-//    ellipse(loc.x,loc.y,10, 10);
-
     fill(trailColor,lifespan);
     
     Iterator<Tweet> it = points.iterator();
@@ -37,32 +27,33 @@ public class Trail {
       t = it.next();
       loc = t.screenLocation();
       ellipse(loc.x,loc.y,10, 10);
-    } 
-    
+    }    
+  }
+  
+  void drawCurve() {
     // setup to draw the trail
     noFill();
     stroke(trailColor, lifespan);
     strokeWeight(4.0);
 
     beginShape();
-    it = points.iterator();
+    Iterator<Tweet> it = points.iterator();
     while (it.hasNext()) {
       t = it.next();
       loc = t.screenLocation();
-      
-      curveVertex(loc.x, loc.y);
-      
-      t.lifespan *= 0.9;
-      
-//      if (t.isDead()) {
-//        it.remove();
-//      }
+      curveVertex(loc.x, loc.y);      
     }
-    endShape();
-
-    lifespan -= 10.0;
+    endShape();   
+  } 
+  
+  void draw() {
+    drawPoints();
     
-    
+    if (points.size()>1)
+      drawCurve();
+      
+    lifespan *= 0.85;
+        
     // display screen_name at end of trail
     //fill(200, t.lifespan/2.0);
     //text(t.screenName,loc.x-1, loc.y-2);
