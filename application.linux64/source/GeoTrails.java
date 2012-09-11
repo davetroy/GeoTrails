@@ -18,7 +18,19 @@ import java.util.regex.*;
 
 public class GeoTrails extends PApplet {
 
-PImage baltimoreMapImage;
+// GeoTrails.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// Simple sketch to allow visualization of simple geo-based trails through time.
+// Currently ingests a csv file of tweets in the format of:
+// screen_name,timestamp,lat,lon
+// and displays them as geo trails on a basemap (specified in this file)
+// Trails are displayed with a persistence-of-vision effect and gradually fade out.
+// The sketch is rendered at a target frame rate of 30fps and each frame loads
+// a certain number of seconds worth of tweets to display (currently 287 seconds).
+// The sketch will stop running when it runs out of tweets.
+
+PImage mapImage;
 MercatorMap mercatorMap;
 PVector lastLoc;
 TweetBase db;
@@ -32,16 +44,16 @@ public void setup() {
   frameRate(30);
   smooth();
   
-  baltimoreMapImage = loadImage("baltimore_basemap.png");
+  mapImage = loadImage("baltimore_basemap.png");
   
   mercatorMap = new MercatorMap(979, 1080,
        39.4057f, 39.1687f,-76.757f, -76.4782f);
 
-  legendFont = createFont("HelveticaNeue-Medium", 24);
+  legendFont = createFont("HelveticaNeue-Bold", 24);
   legendFont2 = createFont("HelveticaNeue-Light", 18);
   tint(100,100,100);
   lastLoc = new PVector(0,0);
-  image(baltimoreMapImage,0,0,width,height);
+  image(mapImage,0,0,width,height);
   
   db = new TweetBase();
   current = db.get(0);
@@ -54,16 +66,17 @@ public void setup() {
 public void draw() {
   
   // draw the base map
-  image(baltimoreMapImage,0,0,width,height);
+  image(mapImage,0,0,width,height);
 
   // grab tweets for this time interval
   currentTime += 287;
   ArrayList<Tweet> newTweets = db.tweetsThrough(currentTime);
   
+  // stop if there are no more tweets to display
   if (newTweets.size()==0)
     exit();
     
-  // add new trauks and draw the trails
+  // add new tweets and draw the trails
   trailSystem.addTweets(newTweets);
   trailSystem.draw();
 
@@ -179,6 +192,14 @@ public class MercatorMap {
   }
 }
 
+// Trail.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// wrapper for an ArrayList of points that contains individual tweets
+// trails belong to a TrailSystem (like a particle belongs to a ParticleSystem)
+// a trail starts out with a lifespan (and opacity) of 255.0 and then decays down to 0
+// when it reaches 0, it is considered dead and is removed from the trailsystem.
+// Every time a new point is added to the trail its lifespan is (arbitrarily) renewed to 255.0.
 
 public class Trail {
   ArrayList<Tweet> points;
@@ -247,6 +268,16 @@ public class Trail {
   
 
 }
+// TrailSystem.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// TrailSystem is a wrapper for a Hashtable that tracks trails for individual objects
+// in this case, the keys are screenNames associated with tweets. We keep all of the
+// active trails in the TrailSystem. When a trail finally fades out and dies, we remove
+// it from the system. The system is also responsible for rotating through our color palette.
+// (Two palettes provided, courtesy of Friends of the Web, Baltimore -- one dark, one light --
+// note that hex colors are provided in 32-bit alpha+rgb order format.)
+
 class TrailSystem {
   Hashtable trails;
   PFont labelFont;
@@ -309,6 +340,15 @@ class TrailSystem {
   }
   
 }
+// Tweet.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// A simple class for each tweet. For the purposes of trails we are only storing
+// a unix timestamp, a screenName, and a latitude and longitude. An optional lifespan
+// is specified here but is not used. It could be used for aging out and removing a tweet
+// from a trail. Each tweet acts as a waypoint on a gps trail. Trails with a length of
+// one tweet (waypoint) just act as single markers and are plotted accordingly.
+
 public class Tweet {
   int timestamp;
   float lat, lon;
@@ -337,6 +377,14 @@ public class Tweet {
   }
 
 }
+// TweetBase.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// Acts as a data model and factory for storing, retrieving, and making Tweets, which can
+// then be added to Trails and into the TrailSystem. TweetBase allows us to retrieve a span
+// of tweets generated over a timestamp range (tweetsThrough) and to return those as an
+// ArrayList of fully constituted tweets.
+
 public class TweetBase {
   String[] tweets;
   int lastIndex;

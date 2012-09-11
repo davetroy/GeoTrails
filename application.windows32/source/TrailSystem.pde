@@ -1,3 +1,13 @@
+// TrailSystem.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// TrailSystem is a wrapper for a Hashtable that tracks trails for individual objects
+// in this case, the keys are screenNames associated with tweets. We keep all of the
+// active trails in the TrailSystem. When a trail finally fades out and dies, we remove
+// it from the system. The system is also responsible for rotating through our color palette.
+// (Two palettes provided, courtesy of Friends of the Web, Baltimore -- one dark, one light --
+// note that hex colors are provided in 32-bit alpha+rgb order format.)
+
 class TrailSystem {
   Hashtable trails;
   PFont labelFont;

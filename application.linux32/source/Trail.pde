@@ -1,3 +1,11 @@
+// Trail.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// wrapper for an ArrayList of points that contains individual tweets
+// trails belong to a TrailSystem (like a particle belongs to a ParticleSystem)
+// a trail starts out with a lifespan (and opacity) of 255.0 and then decays down to 0
+// when it reaches 0, it is considered dead and is removed from the trailsystem.
+// Every time a new point is added to the trail its lifespan is (arbitrarily) renewed to 255.0.
 
 public class Trail {
   ArrayList<Tweet> points;

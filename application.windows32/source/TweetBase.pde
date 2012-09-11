@@ -1,3 +1,11 @@
+// TweetBase.pde
+// (c) 2012 David Troy (@davetroy)
+//
+// Acts as a data model and factory for storing, retrieving, and making Tweets, which can
+// then be added to Trails and into the TrailSystem. TweetBase allows us to retrieve a span
+// of tweets generated over a timestamp range (tweetsThrough) and to return those as an
+// ArrayList of fully constituted tweets.
+
 public class TweetBase {
   String[] tweets;
   int lastIndex;
